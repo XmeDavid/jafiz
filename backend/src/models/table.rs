@@ -86,8 +86,6 @@ impl TableSQL {
 
         *current_value |= day_bit;
 
-        println!("NOT WORKING {} {}", column, current_value);
-
         let query = format!(
             "UPDATE jafiz SET {} = ? WHERE id = ?",
             column

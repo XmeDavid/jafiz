@@ -55,7 +55,7 @@ async fn rocket() -> Rocket<Build> {
     rocket::build()
         .attach(cors_fairing())
         .manage(pool)
-        .mount("/", FileServer::from("../frontend/dist"))
+        .mount("/", FileServer::from("./dist"))
         .mount("/api", rocket::routes![
             routes::tables::check_in,
             routes::tables::auth,
