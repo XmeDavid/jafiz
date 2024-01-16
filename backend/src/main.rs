@@ -1,8 +1,7 @@
 use rocket::Rocket;
 use rocket::Build;
 use rocket::fs::FileServer;
-use sqlx::postgres::PgPoolOptions;
-
+use sqlx::mysql::MySqlPoolOptions;
 use rocket::http::Method;
 use rocket_cors::{AllowedOrigins, AllowedHeaders, CorsOptions, Cors};
 
@@ -47,7 +46,7 @@ async fn rocket() -> Rocket<Build> {
 
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
-    let pool = PgPoolOptions::new()
+    let pool = MySqlPoolOptions::new()
         .max_connections(20)
         .connect(database_url.as_str())
         .await

@@ -3,7 +3,7 @@ use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket::serde::{Serialize, Deserialize};
 use rocket::request::{self, Request, FromRequest};
-use sqlx::PgPool;
+use sqlx::MySqlPool;
 use validator::Validate;
 use std::env;
 use jsonwebtoken::{encode,decode, Header, EncodingKey, DecodingKey, Validation, errors::ErrorKind};
@@ -54,7 +54,7 @@ impl<'r> FromRequest<'r> for BearerToken {
 
 
 #[rocket::post("/check_in")]
-pub async fn check_in(bearer: BearerToken,  db_pool: &State<PgPool>) -> Result<Json<TableDTO>, (Status, String)> {
+pub async fn check_in(bearer: BearerToken,  db_pool: &State<MySqlPool>) -> Result<Json<TableDTO>, (Status, String)> {
     let claims = token_valid(bearer.token.as_str());
     return match claims {
         Ok(claims) => {
@@ -79,7 +79,7 @@ pub async fn check_in(bearer: BearerToken,  db_pool: &State<PgPool>) -> Result<J
 }
 
 #[rocket::get("/auth")]
-pub async fn validate_token(bearer: BearerToken, db_pool: &State<PgPool>) -> Result<(), (Status, String)> {
+pub async fn validate_token(bearer: BearerToken, db_pool: &State<MySqlPool>) -> Result<(), (Status, String)> {
     let claims = token_valid(bearer.token.as_str());
 
     return match claims {
@@ -95,7 +95,7 @@ pub async fn validate_token(bearer: BearerToken, db_pool: &State<PgPool>) -> Res
 
 
 #[rocket::get("/<id>")]
-pub async fn get(id: &str, db_pool: &State<PgPool>) -> Result<Json<TableDTO>, (Status, String)> {
+pub async fn get(id: &str, db_pool: &State<MySqlPool>) -> Result<Json<TableDTO>, (Status, String)> {
 
     let table: Result<TableSQL, sqlx::Error> = TableSQL::find_by_id(&db_pool, id).await;
     
@@ -113,7 +113,7 @@ pub struct DescriptionData {
 }
 
 #[rocket::post("/description", data = "<form_data>", format = "json")]
-pub async fn description(bearer: BearerToken,  form_data: Json<DescriptionData>, db_pool: &State<PgPool>) -> Result<(), (Status, String)> {
+pub async fn description(bearer: BearerToken,  form_data: Json<DescriptionData>, db_pool: &State<MySqlPool>) -> Result<(), (Status, String)> {
 
     let claims = token_valid(bearer.token.as_str());
 
@@ -153,7 +153,7 @@ fn generate_token(user_id: &str) -> Result<String, jsonwebtoken::errors::Error> 
 }
 
 #[rocket::post("/auth", format = "json", data = "<form_data>")]
-pub async fn auth(form_data: Json<TableData>, db_pool: &State<PgPool>) -> Result<Json<AuthResponse>, (Status, String)> {
+pub async fn auth(form_data: Json<TableData>, db_pool: &State<MySqlPool>) -> Result<Json<AuthResponse>, (Status, String)> {
     let table_data = form_data.into_inner();
 
     // Validate the input data

@@ -1,6 +1,6 @@
 
 use chrono::Datelike;
-use sqlx::{FromRow, PgPool, Error};
+use sqlx::{FromRow, MySqlPool, Error};
 use rocket::serde::{Serialize, Deserialize};
 use bcrypt::{hash, DEFAULT_COST};
 use validator::Validate;
@@ -62,7 +62,7 @@ pub struct TableSQL {
 
 impl TableSQL {
 
-    pub async fn check_in(&mut self, pool: &PgPool,) -> Result<Self, Error> {
+    pub async fn check_in(&mut self, pool: &MySqlPool,) -> Result<Self, Error> {
         let now = chrono::offset::Utc::now();
         let month = now.month();
         let day = now.day() as usize;
@@ -86,9 +86,10 @@ impl TableSQL {
 
         *current_value |= day_bit;
 
+        println!("NOT WORKING {} {}", column, current_value);
 
         let query = format!(
-            "UPDATE jafiz SET {} = $1 WHERE id = $2",
+            "UPDATE jafiz SET {} = ? WHERE id = ?",
             column
         );
 
@@ -100,16 +101,16 @@ impl TableSQL {
 
         sqlx::query_as!(
                 TableSQL,
-                "SELECT * FROM jafiz WHERE id = $1",
+                "SELECT * FROM jafiz WHERE id = ?",
                 self.id
             )
             .fetch_one(pool)
             .await
     }
 
-    pub async fn update_description(pool: &PgPool, id: String, description: String){
+    pub async fn update_description(pool: &MySqlPool, id: String, description: String){
         let _ = sqlx::query!(
-            "UPDATE jafiz SET description = $1 WHERE id = $2",
+            "UPDATE jafiz SET description = ? WHERE id = ?",
             description,
             id
         )
@@ -118,7 +119,7 @@ impl TableSQL {
     }
 
     pub async fn create(
-        pool: &PgPool, 
+        pool: &MySqlPool, 
         id: String, 
         name: String,
         description: String,
@@ -145,7 +146,7 @@ impl TableSQL {
         };
 
         let _ = sqlx::query!(
-            "INSERT INTO jafiz (id, name, password) VALUES ($1, $2, $3)",
+            "INSERT INTO jafiz (id, name, password) VALUES (?, ?, ?)",
             new_table.id,
             new_table.name,
             new_table.password
@@ -156,10 +157,10 @@ impl TableSQL {
         Ok(new_table)
     }
 
-    pub async fn find_by_id(pool: &PgPool, id: &str) -> Result<TableSQL, sqlx::Error> {
+    pub async fn find_by_id(pool: &MySqlPool, id: &str) -> Result<TableSQL, sqlx::Error> {
         sqlx::query_as!(
             TableSQL,
-            "SELECT * FROM jafiz WHERE id = $1",
+            "SELECT * FROM jafiz WHERE id = ?",
             id
         )
         .fetch_one(pool)
