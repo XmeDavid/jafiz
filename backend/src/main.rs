@@ -1,6 +1,7 @@
 use rocket::Rocket;
 use rocket::Build;
 use rocket::fs::FileServer;
+use sqlx::mysql::MySqlConnectOptions;
 use sqlx::mysql::MySqlPoolOptions;
 use rocket::http::Method;
 use rocket_cors::{AllowedOrigins, AllowedHeaders, CorsOptions, Cors};
@@ -44,11 +45,23 @@ async fn rocket() -> Rocket<Build> {
 
     dotenv::dotenv().ok();
 
-    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    //let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+
+    let database_host = std::env::var("DATABASE_HOST").expect("DATABASE_HOST must be set");
+    let database_user = std::env::var("DATABASE_USER").expect("DATABASE_USER must be set");
+    let database_password = std::env::var("DATABASE_PASSWORD").expect("DATABASE_PASSWORD must be set");
+    let database_name = std::env::var("DATABASE_NAME").expect("DATABASE_NAME must be set");
+
+
+    let connection_options = MySqlConnectOptions::new()
+        .host(&database_host)
+        .username(&database_user)
+        .password(&database_password)
+        .database(&database_name);
 
     let pool = MySqlPoolOptions::new()
         .max_connections(20)
-        .connect(database_url.as_str())
+        .connect_with(connection_options)
         .await
         .expect("Failed to create pool.");
 

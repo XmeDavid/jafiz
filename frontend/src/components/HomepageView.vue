@@ -9,7 +9,7 @@ const password = ref("");
 const go = async () => {
     const id = await sha256(name.value + password.value);
     console.log('sending request');
-    await fetch(`/api/auth`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/auth`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -55,7 +55,7 @@ const subtitle = ref("Track your progress easily, without the hassle of a compli
 
 </script>
 <template>
-    <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div class="w-screen h-screen flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
         <div class="flex w-full py-12 md:py-24 lg:py-32 xl:py-48 items-center justify-center">
             <div class="w-full container px-4 md:px-6">
                 <div class="flex flex-col items-center space-y-4 text-center">
