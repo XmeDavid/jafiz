@@ -1,0 +1,6 @@
+for deployment v0
+    create description label and make it editable on the frontend. so the user can remind itself what he is trying to accomplish with that board
+    investigate rocket.rs hosting the frontend
+for future v1
+    investigate nuxt for server side rendering + hydration
+    editable days, but visible that it was edited
